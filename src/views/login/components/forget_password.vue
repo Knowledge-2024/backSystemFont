@@ -12,7 +12,7 @@
         <template #footer>
                 <div class="dialog-footer">
                     <el-button @click="state.forgetPasswordDialog = false">取消</el-button>
-                    <el-button type="primary" @click="openChangePassword">
+                    <el-button type="primary" @click="verifyAccount">
                         下一步
                     </el-button>
                 </div>
@@ -21,18 +21,18 @@
     <el-dialog v-model="state.changePasswordDialog" title="修改密码" width="400px">
         <el-form class="login-form" :label-position="labelPosition" :rules="rules">
             <el-form-item label="输入您的新密码" prop="password">
-                <el-input v-model="forgetData.account" placeholder="输入您的新密码" />
+                <el-input v-model="forgetData.password" placeholder="输入您的新密码" show-password/>
             </el-form-item>
             <el-form-item label="再次输入您的新密码" prop="repassword">
-                <el-input v-model="forgetData.email" placeholder="再次输入您的新密码" />
+                <el-input v-model="forgetData.repassword" placeholder="再次输入您的新密码" show-password/>
             </el-form-item>
         </el-form>
         <!-- 底部内容 -->
         <template #footer>
                 <div class="dialog-footer">
                     <el-button @click="state.changePasswordDialog = false">取消</el-button>
-                    <el-button type="primary" @click="state.changePasswordDialog = false">
-                        下一步
+                    <el-button type="primary" @click="resetPassword">
+                        确定
                     </el-button>
                 </div>
             </template>
@@ -42,6 +42,8 @@
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { verify,reset } from '@/api/login.js';
 const labelPosition = ref('top')
 
 
@@ -79,16 +81,42 @@ const rules = reactive({
         { required: true, message: '请再次输入您的新密码', trigger: 'blur' },
     ],
 })
+
+
+const verifyAccount = async() => {
+    const res = await verify(forgetData)
+    console.log(res)
+    if(res.data.status==0){
+        ElMessage({
+				message: '验证成功',
+				type: 'success',
+			})
+            localStorage.setItem('id',res.data.id)
+            state.forgetPasswordDialog = false
+            state.changePasswordDialog = true
+    }else{
+        ElMessage.error('验证失败')
+    }
+}
+
+const resetPassword = async () =>{
+    if(forgetData.password==forgetData.repassword){
+        const newPassword = forgetData.repassword
+        const res = await reset(localStorage.getItem("id"),newPassword)
+        ElMessage({
+				message: '修改成功',
+				type: 'success',
+			})
+    }else{
+        ElMessage.error('修改失败,请检查密码是否一致')
+    }
+    
+}
+
 const open = () => {
     state.forgetPasswordDialog = true
     
 }
-
-const openChangePassword = () => {
-    state.changePasswordDialog = true,
-    state.forgetPasswordDialog = false
-}
-
 defineExpose({
     open
 })

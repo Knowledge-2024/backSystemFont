@@ -74,7 +74,7 @@
                         <el-icon><icon-menu /></el-icon>
                         <span>登录日志</span>
                     </el-menu-item>
-                    <el-menu-item index="9">
+                    <el-menu-item index="set">
                         <el-icon>
                             <Setting />
                         </el-icon>
@@ -182,6 +182,11 @@ const goLogin = ()=>{
         justify-content: space-around;
         align-items: center;
     }
+}
+
+.el-main{
+    --el-mian-padding:20px;
+    background-color: #f3f4fa;
 }
 
 .el-menu-item:hover {
